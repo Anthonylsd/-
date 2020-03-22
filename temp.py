@@ -4,6 +4,12 @@ Created on Sun Mar  1 20:52:47 2020
 
 @author: Administrator
 """
+
+#www.bjzhuoda.com ext:exe
+
+
+
+
 #filetype(百度)
 from bs4 import BeautifulSoup
 import requests
@@ -38,6 +44,15 @@ class App(Frame):
         Button(self, text = '自定义搜索', font=("微软雅黑", 16), fg='green', command=self.zidingyi).grid(row = 1, column = 4, rowspan = 1)
         
         Button(self, text = '保存数据到本地', font=("微软雅黑", 12), fg='red', command = self.save).grid(row = 2, column = 4, rowspan = 1, sticky=E)
+        
+        #test
+        
+
+        
+        
+        
+        
+        
     def getf(self):
         self.file = self.filetype()
     
@@ -49,8 +64,10 @@ class App(Frame):
         Customize()
     
     def search(self):
-        print(1111)
         print(self.leixing.get())
+        if self.leixing.get() == '':
+            showinfo('警示', '请在右上角选择搜索类型')
+            return
         url = self.inurl()
         ext = self.filetype()
         print(url)
@@ -85,6 +102,12 @@ class App(Frame):
             print(real_url.headers['Location'])
             url_list.append(real_url.headers['Location'])
         
+        if len(url_list) == 0:
+            showinfo('警示','找不到相关网页')
+            self.destroy()
+            App()
+            return
+        
         Label(self,text="为您找到以下内容:", font=("微软雅黑", 16), fg='SlateGray').grid(row = 2, column = 2, rowspan = 1)
         num_url = len(url_list)
         
@@ -92,8 +115,12 @@ class App(Frame):
         self.url = save
         
         for u in range(num_url):
-            Label(self,text="{}.".format(u+1), font=("微软雅黑", 20), fg='black').grid(row = u+3, column = 1, sticky=E)
-            Label(self,text="{}".format(url_list[u]), font=("微软雅黑", 20), fg='black').grid(row = u+3, column = 2, rowspan = 1, sticky=W)
+            Label(self,text="{}.".format(u+1), font=("微软雅黑", 16), fg='black').grid(row = u+3, column = 1, sticky=E)
+            e = Text(self, width=50, height=1, font=("微软雅黑", 16))
+            e.grid(row = u+3, column = 2, sticky=W)
+            e.insert(END,url_list[u])
+        #存在数据的话，显示复制按钮
+        
     #复制数据
     def copy(self,text):
         pyperclip.copy(text)
@@ -179,7 +206,11 @@ class Customize(Frame):
             file.write(str(u)+'\n')
         file.close()
         showinfo('提示','保存成功')
-    
+        
+    #复制数据
+    def copy(self,text):
+        pyperclip.copy(text)
+        
     def back(self):
         self.destroy()
         App()
@@ -195,7 +226,6 @@ class Customize(Frame):
        'Accept-Encoding': 'gzip, deflate',
        'Accept-Language': 'zh-CN,zh;q=0.9'
         }
-        
         chaxun = self.site.get()
         url = "https://www.baidu.com/s?wd=" + chaxun  + "&ie=utf-8"
         req = requests.get(url, headers=headers).content
@@ -211,13 +241,20 @@ class Customize(Frame):
         Label(self,text="为您找到以下内容:", font=("微软雅黑", 16), fg='SlateGray').grid(row = 2, column = 1, rowspan = 1)
         num_url = len(url_list)
         
+        if len(url_list) == 0:
+            showinfo('警示','找不到相关网页')
+            self.destroy()
+            Customize()
+            return 
+        
         self.list = url_list
         self.url = chaxun
         
         for u in range(num_url):
-            Label(self,text="{}.".format(u+1), font=("微软雅黑", 20), fg='black').grid(row = u+3, column = 0, sticky=E)
-            Label(self,text="{}".format(url_list[u]), font=("微软雅黑", 20), fg='black').grid(row = u+3, column = 1, rowspan = 1, sticky=W)
-        
+            Label(self,text="{}.".format(u+1), font=("微软雅黑", 16), fg='black').grid(row = u+3, column = 0, sticky=E)
+            e = Text(self, width=50, height=1, font=("微软雅黑", 16))
+            e.grid(row = u+3, column = 1, sticky=W)
+            e.insert(END,url_list[u])
         
         
         
